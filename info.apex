@@ -30,3 +30,24 @@ public class ContactSearch {
         return selectedContacts;
     }
 }
+
+//SOSL - searches for accounts and contacts that have any fields with the word 'SFDC'.
+List<List<SObject>> searchList = [FIND 'SFDC' IN ALL FIELDS 
+                                      RETURNING Account(Name), Contact(FirstName,LastName)];
+
+//basic SOSL
+FIND 'SearchQuery' [IN SearchGroup] [RETURNING ObjectsAndFields]
+
+
+//SOQL exercise
+public class ContactAndLeadSearch {
+    public static List<List<SObject>> searchContactsAndLeads (String searchedName) {
+        List<List<SObject>> searchList = [FIND :searchedName IN ALL FIELDS 
+                                      RETURNING Contact(LastName), Lead(LastName)];
+        return searchList;
+    }
+}
+
+
+
+
