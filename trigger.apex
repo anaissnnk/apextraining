@@ -22,6 +22,18 @@ trigger SoqlTriggerNotBulk on Account(after update) {
     }
 }
 
+//getting all related records
+trigger SoqlTriggerBulk on Account(after update) {  
+    // Perform SOQL query once.    
+    // Get the related opportunities for the accounts in this trigger.
+    List<Opportunity> relatedOpps = [SELECT Id,Name,CloseDate FROM Opportunity
+        WHERE AccountId IN :Trigger.new];
+    // Iterate over the related opportunities    
+    for(Opportunity opp : relatedOpps) { 
+        // Do some other processing
+    }
+}
+
 //best practice
 trigger SoqlTriggerBulk on Account(after update) {  
     // Perform SOQL query once.    
@@ -36,14 +48,64 @@ trigger SoqlTriggerBulk on Account(after update) {
     }
 }
 
-//getting all related records
-trigger SoqlTriggerBulk on Account(after update) {  
-    // Perform SOQL query once.    
-    // Get the related opportunities for the accounts in this trigger.
-    List<Opportunity> relatedOpps = [SELECT Id,Name,CloseDate FROM Opportunity
-        WHERE AccountId IN :Trigger.new];
-    // Iterate over the related opportunities    
-    for(Opportunity opp : relatedOpps) { 
-        // Do some other processing
+
+List<Opportunity> toProcess = new List<Opportunity>();
+
+switch on Trigger.operationType {
+    when AFTER_INSERT {
+        toProcess = Trigger.new;
+    }
+    when AFTER_UPDATE {
+        // Use a separate query for updated opportunities
+        toProcess = [SELECT Id, Stage FROM Opportunity WHERE Id IN :Trigger.new];
+    }
+}
+
+
+
+//bulk trigger exercise
+trigger ClosedOpportunityTrigger on Opportunity(after insert, after update) {
+    List<Opportunity> toProcess = new List<Opportunity>();
+    switch on Trigger.operationType {
+        when AFTER_INSERT {
+            toProcess = Trigger.New;
+        }
+        when AFTER_UPDATE {
+            toProcess =  [SELECT Id, Stage FROM Opportunity
+                         WHERE Id IN :Trigger.New]
+        }
+    }
+    for (Opportunity opp : toProcess) {
+        if (opp.Stage == 'Closed Won') {
+            Task newTask = new Task();
+            newTask.Subject = 'Follow Up Test Task';
+            newTask.WhatId = opp.Id;
+            insert newTask;
+        }
+    }
+}
+
+
+trigger ClosedOpportunityTrigger on Opportunity(after insert, after update) {  
+    List<Opportunity> closedWonOpportnities = 
+        [SELECT Id,(SELECT Id FROM Opportunities) 
+         FROM Opportunity WHERE Id IN :Trigger.new];
+    for(Opportunity opp : closedWonOpportnities) { 
+        if (opp.Stage = 'Closed Won') {
+            Task newTask = new Task();
+            newTask.Subject = 'Follow Up Test Task';
+            newTask.WhatID = opp.Id;
+            insert newTask;
+        }
+    }
+}
+
+trigger ClosedOpportunityTrigger on Opportunity (after insert, after update) {
+    for(Opportunity opp: [SELECT Id FROM Opportunity
+                          WHERE Stage = 'Closed Won']) {
+                              Task newTask = new Task();
+                              newTask.Subject = 'Follow Up Test Task';
+                              newTask.WhatId = opp.Id;
+                              insert newTask;
     }
 }
