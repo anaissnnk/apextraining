@@ -61,9 +61,30 @@ switch on Trigger.operationType {
     }
 }
 
-
+//bulk trigger solution
+trigger ClosedOpportunityTrigger on Opportunity (after insert, after update) {
+    List<Task> taskList = new List<Task>();
+    for(Opportunity opp : [SELECT Id, StageName FROM Opportunity WHERE StageName='Closed Won' AND Id IN : Trigger.New]){
+        taskList.add(new Task(Subject='Follow Up Test Task', WhatId = opp.Id));
+    }
+    
+    if(taskList.size()>0){
+        insert tasklist;
+    }
+}
 
 //bulk trigger exercise
+trigger ClosedOpportunityTrigger on Opportunity (after insert, after update) {
+    for(Opportunity opp: [SELECT Id FROM Opportunity
+                          WHERE StageName = 'Closed Won']) {
+                              Task newTask = new Task();
+                              newTask.Subject = 'Follow Up Test Task';
+                              newTask.WhatId = opp.Id;
+                              insert newTask;
+    }
+}
+
+
 trigger ClosedOpportunityTrigger on Opportunity(after insert, after update) {
     List<Opportunity> toProcess = new List<Opportunity>();
     switch on Trigger.operationType {
@@ -100,12 +121,3 @@ trigger ClosedOpportunityTrigger on Opportunity(after insert, after update) {
     }
 }
 
-trigger ClosedOpportunityTrigger on Opportunity (after insert, after update) {
-    for(Opportunity opp: [SELECT Id FROM Opportunity
-                          WHERE Stage = 'Closed Won']) {
-                              Task newTask = new Task();
-                              newTask.Subject = 'Follow Up Test Task';
-                              newTask.WhatId = opp.Id;
-                              insert newTask;
-    }
-}
