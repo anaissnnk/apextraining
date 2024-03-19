@@ -67,11 +67,14 @@ trigger ClosedOpportunityTrigger on Opportunity (after insert, after update) {
     for(Opportunity opp : [SELECT Id, StageName FROM Opportunity WHERE StageName='Closed Won' AND Id IN : Trigger.New]){
         taskList.add(new Task(Subject='Follow Up Test Task', WhatId = opp.Id));
     }
-    
     if(taskList.size()>0){
         insert tasklist;
     }
 }
+
+/*By using AND Id IN : Trigger.New in the SOQL query,
+the trigger ensures that it only selects the opportunities that are relevant to the current trigger context,
+whether they are newly inserted or updated. */
 
 //bulk trigger exercise
 trigger ClosedOpportunityTrigger on Opportunity (after insert, after update) {
