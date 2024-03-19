@@ -18,3 +18,20 @@ trigger TriggerName on ObjectName (trigger_events) {
    code_block
 }
 
+//exercise A trigger to set postal code
+trigger AccountAddressTrigger on Account (before insert, before update) {
+    for(Account a : Trigger.new) {
+        if (a.Match_Billing_Address__c == true) {
+        a.ShippingAddress = Match_Billing_Address__c;
+    }
+}
+}
+
+//Exercise A solution - using correct object
+trigger AccountAddressTrigger on Account (before insert, before update) {
+    for(Account a : Trigger.new) {
+        if (a.Match_Billing_Address__c == true) {
+        a.ShippingPostalCode = a.BillingPostalCode;
+    }
+}
+    }
