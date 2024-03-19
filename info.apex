@@ -1,5 +1,4 @@
-//module exercise
-
+//apex basics
 public class AccountHandler {
     public static Account insertNewAccount(String accountName) {
         try {
@@ -12,3 +11,10 @@ public class AccountHandler {
         }
     }
 }
+
+//apex trigger
+//trigger syntax
+trigger TriggerName on ObjectName (trigger_events) {
+   code_block
+}
+
