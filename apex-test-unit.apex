@@ -56,7 +56,7 @@ public class TaskUtil {
   }
 }
 
-//if class test example
+//if class test example - 75%
 @isTest
 private class TaskUtilTest {
   @isTest
@@ -65,5 +65,26 @@ private class TaskUtilTest {
     System.assertEquals('Normal', pri);
   }
 }
+
+//if class - 100% coverage
+@isTest
+private class TaskUtilTest {
+  @isTest
+  static void testTaskPriority() {
+    String pri = TaskUtil.getTaskPriority('NY');
+    System.assertEquals('Normal', pri);
+  }
+  @isTest
+  static void testTaskHighPriority() {
+    String pri = TaskUtil.getTaskPriority('CA');
+    System.assertEquals('High', pri);
+  }
+  @isTest
+  static void testTaskPriorityInvalid() {
+    String pri = TaskUtil.getTaskPriority('Montana');
+    System.assertEquals(null, pri);
+  }
+}
+
 
 
